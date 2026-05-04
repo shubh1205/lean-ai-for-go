@@ -1,0 +1,33 @@
+---
+description: Go testing rules. Keep tests lean and behavior-focused.
+globs:
+  - "**/*_test.go"
+alwaysApply: false
+---
+
+# Testing
+
+## Test the public API
+- Test public behavior, edge cases that have caused real bugs, and error paths callers actually handle.
+- Don't test private helpers directly — exercise them through the public function.
+- Don't test trivial getters, setters, pass-throughs, or stdlib behavior.
+
+## Layout
+- One `_test.go` per source file, same package, unless you specifically need to test only the exported surface.
+- Table-driven tests by default.
+- Don't add a test case unless it tests something distinct from the others.
+
+## Mocks vs fakes vs real
+- **Real dependencies first** — if a real DB / HTTP server / FS is cheap, use it.
+- **Fakes second** — small in-memory structs that satisfy the interface (20-50 lines).
+- **Mocks last** — only for genuinely external deps (third-party SDK, payment gateway). Don't mock our own code.
+
+## Coverage
+- Cover code that has consequences. Don't chase a coverage number on logging helpers.
+- 80% is a healthy ceiling, not a floor.
+
+## Don't
+- No tests that just call a function and assert `err == nil`.
+- No tests that mock everything and assert on mock calls.
+- No setup helpers used in only one test — inline them.
+- No names like `TestFoo1` / `TestFooSuccess`. Name by behavior: `TestParseDate_RejectsEmptyInput`.
