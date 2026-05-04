@@ -29,6 +29,8 @@ Jump to your tool:
 
 Cursor auto-loads any file in `.cursor/rules/` on every prompt. Each `.mdc` file has YAML frontmatter that scopes it to the right files (the Go style rule only triggers on `*.go`, etc.).
 
+The rule files use specific names (`prime-directives.mdc`, `go-style.mdc`, `testing.mdc`, `planning-scope.mdc`, `self-review.mdc`). If you already have files with any of those names, the copy below will overwrite them — check first and merge manually if needed.
+
 ```bash
 mkdir -p .cursor/rules
 cp -R ~/code/lean-ai-for-go/cursor/rules/. .cursor/rules/
@@ -48,8 +50,17 @@ The reply should mention "prime directives", and — if you have a Go file open 
 
 Claude Code reads `CLAUDE.md` from the repo root on every session and exposes any file in `.claude/commands/` as a slash command.
 
+If `CLAUDE.md` already exists in your project, the snippet below appends to it rather than replacing it. Your existing content is preserved.
+
 ```bash
-cp ~/code/lean-ai-for-go/claude-code/CLAUDE.md ./CLAUDE.md
+if [ -f ./CLAUDE.md ]; then
+  printf '\n\n---\n\n' >> ./CLAUDE.md
+  cat ~/code/lean-ai-for-go/claude-code/CLAUDE.md >> ./CLAUDE.md
+  echo "Appended to existing CLAUDE.md"
+else
+  cp ~/code/lean-ai-for-go/claude-code/CLAUDE.md ./CLAUDE.md
+  echo "Created CLAUDE.md"
+fi
 mkdir -p .claude/commands
 cp ~/code/lean-ai-for-go/claude-code/commands/*.md .claude/commands/
 ```
@@ -74,8 +85,17 @@ You should see the assistant produce a plan (file list, risks, out-of-scope, ope
 
 These tools follow the [`AGENTS.md`](https://agents.md) standard — a single markdown file at the repo root that the agent reads on every session.
 
+If `AGENTS.md` already exists in your project, the snippet below appends to it rather than replacing it.
+
 ```bash
-cp ~/code/lean-ai-for-go/agents-md/AGENTS.md ./AGENTS.md
+if [ -f ./AGENTS.md ]; then
+  printf '\n\n---\n\n' >> ./AGENTS.md
+  cat ~/code/lean-ai-for-go/agents-md/AGENTS.md >> ./AGENTS.md
+  echo "Appended to existing AGENTS.md"
+else
+  cp ~/code/lean-ai-for-go/agents-md/AGENTS.md ./AGENTS.md
+  echo "Created AGENTS.md"
+fi
 ```
 
 **Verify per tool:**
@@ -104,11 +124,18 @@ Copilot reads three things from `.github/`:
 
 3. **`.github/prompts/*.prompt.md`** — reusable chat prompts, invokable from the Copilot Chat input.
 
-Install all three:
+If `.github/copilot-instructions.md` already exists, the snippet appends to it. The per-language instruction files use specific names (`go-style.instructions.md`, `testing.instructions.md`) — if you already have files with those names, the copy will overwrite them; merge manually if needed.
 
 ```bash
 mkdir -p .github/instructions .github/prompts
-cp ~/code/lean-ai-for-go/copilot/copilot-instructions.md .github/copilot-instructions.md
+if [ -f .github/copilot-instructions.md ]; then
+  printf '\n\n---\n\n' >> .github/copilot-instructions.md
+  cat ~/code/lean-ai-for-go/copilot/copilot-instructions.md >> .github/copilot-instructions.md
+  echo "Appended to existing copilot-instructions.md"
+else
+  cp ~/code/lean-ai-for-go/copilot/copilot-instructions.md .github/copilot-instructions.md
+  echo "Created copilot-instructions.md"
+fi
 cp ~/code/lean-ai-for-go/copilot/instructions/*.instructions.md .github/instructions/
 cp ~/code/lean-ai-for-go/copilot/prompts/*.prompt.md .github/prompts/
 ```
@@ -126,8 +153,17 @@ cp ~/code/lean-ai-for-go/copilot/prompts/*.prompt.md .github/prompts/
 
 Windsurf (Codeium's IDE) reads `.windsurfrules` from the repo root.
 
+If `.windsurfrules` already exists in your project, the snippet below appends to it rather than replacing it.
+
 ```bash
-cp ~/code/lean-ai-for-go/windsurf/.windsurfrules ./.windsurfrules
+if [ -f ./.windsurfrules ]; then
+  printf '\n\n---\n\n' >> ./.windsurfrules
+  cat ~/code/lean-ai-for-go/windsurf/.windsurfrules >> ./.windsurfrules
+  echo "Appended to existing .windsurfrules"
+else
+  cp ~/code/lean-ai-for-go/windsurf/.windsurfrules ./.windsurfrules
+  echo "Created .windsurfrules"
+fi
 ```
 
 **Verify:** open the project in Windsurf, ask Cascade "what rules are loaded for this project?". Should reference the prime directives.
@@ -140,8 +176,17 @@ For finer scoping (per-file-type rules), Windsurf also supports memories — add
 
 Cline reads `.clinerules` from the repo root.
 
+If `.clinerules` already exists in your project, the snippet below appends to it rather than replacing it.
+
 ```bash
-cp ~/code/lean-ai-for-go/cline/.clinerules ./.clinerules
+if [ -f ./.clinerules ]; then
+  printf '\n\n---\n\n' >> ./.clinerules
+  cat ~/code/lean-ai-for-go/cline/.clinerules >> ./.clinerules
+  echo "Appended to existing .clinerules"
+else
+  cp ~/code/lean-ai-for-go/cline/.clinerules ./.clinerules
+  echo "Created .clinerules"
+fi
 ```
 
 **Verify:** open the project, start a Cline task. Ask "what rules are active?". Should reference the prime directives.
@@ -168,7 +213,12 @@ The rules will evolve. To pull updates:
 cd ~/code/lean-ai-for-go && git pull
 ```
 
-Then re-run the copy commands in any project that consumes the rules. The files are small enough that diffs are easy to review — `git diff` your project's rule files after the copy to see what changed.
+Then re-run the install snippet for your tool. For single-file tools where you appended content, re-running will append again — remove the previous lean-ai-for-go block first, then re-run, to avoid duplicates. A clean update looks like:
+
+```bash
+# Example for CLAUDE.md — remove old block, append new one
+# The separator line (---) marks where the lean-ai-for-go section starts
+```
 
 If you've added project-specific rules, keep them in *separate* files (e.g., `04-our-conventions.mdc`) so updates don't overwrite them.
 
@@ -176,7 +226,7 @@ If you've added project-specific rules, keep them in *separate* files (e.g., `04
 
 ## Customizing for your project
 
-The rules are intentionally generic Go. To add project-specific rules, don't edit the generated files — your changes will be overwritten on the next sync. Instead, add new files alongside them.
+The rules are intentionally generic Go. To add project-specific rules, don't edit the installed files — your changes may be overwritten on the next update. Instead, add new files alongside them.
 
 For example, in Cursor:
 
@@ -209,24 +259,35 @@ This keeps personal preferences out of the project repo while still letting them
 
 ## Uninstall
 
-Just delete the files written by the install snippets. Nothing else is changed; the pack writes nothing outside the listed paths.
+For tools where the install **created** the file, delete it entirely. For tools where the install **appended** to an existing file, remove the lean-ai-for-go block (everything from the `---` separator to the end of the file, or between separators if you have content below it).
 
 ```bash
-# Cursor
+# Cursor — always a fresh copy, safe to delete
 rm -rf .cursor/rules
 
-# Claude Code
-rm -rf .claude/commands CLAUDE.md
+# Claude Code — delete commands; edit or delete CLAUDE.md depending on whether you appended
+rm -rf .claude/commands
+# If CLAUDE.md was created by this pack: rm CLAUDE.md
+# If CLAUDE.md already existed: remove the appended section manually
 
 # AGENTS.md tools
-rm AGENTS.md
+# If AGENTS.md was created by this pack: rm AGENTS.md
+# If AGENTS.md already existed: remove the appended section manually
 
-# Copilot
-rm -rf .github/copilot-instructions.md .github/instructions .github/prompts
+# Copilot — delete instruction and prompt files; edit or delete copilot-instructions.md
+rm -f .github/instructions/go-style.instructions.md \
+      .github/instructions/testing.instructions.md \
+      .github/prompts/plan.prompt.md \
+      .github/prompts/simplify.prompt.md \
+      .github/prompts/go-review.prompt.md
+# If copilot-instructions.md was created by this pack: rm .github/copilot-instructions.md
+# If copilot-instructions.md already existed: remove the appended section manually
 
 # Windsurf
-rm .windsurfrules
+# If .windsurfrules was created by this pack: rm .windsurfrules
+# If .windsurfrules already existed: remove the appended section manually
 
 # Cline
-rm .clinerules
+# If .clinerules was created by this pack: rm .clinerules
+# If .clinerules already existed: remove the appended section manually
 ```
