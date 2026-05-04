@@ -14,6 +14,7 @@ git clone https://github.com/your-org/lean-ai-for-go.git ~/code/lean-ai-for-go
 ```
 
 Jump to your tool:
+
 - [Cursor](#cursor)
 - [Claude Code](#claude-code)
 - [OpenAI Codex / OpenCode / Antigravity / Aider (AGENTS.md)](#openai-codex--opencode--antigravity--aider-agentsmd)
@@ -55,13 +56,14 @@ cp ~/code/lean-ai-for-go/claude-code/commands/*.md .claude/commands/
 
 **Verify:** run `claude` in the project directory and try:
 
-```
+```text
 /plan add a /healthz endpoint to main.go
 ```
 
 You should see the assistant produce a plan (file list, risks, out-of-scope, open questions) instead of writing code.
 
 **Available commands after install:**
+
 - `/plan <task>` — produce a plan, no code, before any non-trivial change.
 - `/simplify [target]` — review the most recent change (or a target) and remove unnecessary complexity.
 - `/go-review [target]` — review pending Go changes against the rules; report issues, don't edit.
@@ -93,11 +95,13 @@ Copilot reads three things from `.github/`:
 
 1. **`.github/copilot-instructions.md`** — repo-wide instructions, applied to every Copilot interaction.
 2. **`.github/instructions/*.instructions.md`** — path-scoped instructions with frontmatter (similar to Cursor's `.mdc`):
-   ```
+
+   ```text
    ---
    applyTo: "**/*.go"
    ---
    ```
+
 3. **`.github/prompts/*.prompt.md`** — reusable chat prompts, invokable from the Copilot Chat input.
 
 Install all three:
@@ -110,6 +114,7 @@ cp ~/code/lean-ai-for-go/copilot/prompts/*.prompt.md .github/prompts/
 ```
 
 **Verify:**
+
 - In Copilot Chat: ask "show me the loaded instructions" — it should reference the prime directives.
 - In Copilot Chat: type `/plan` (or use the prompt picker). The `plan`, `simplify`, and `go-review` prompts should appear.
 
@@ -150,7 +155,7 @@ Cline also supports a `.clinerules/` *directory* with multiple files. If you pre
 If your AI tool isn't listed:
 
 1. Check whether it supports `AGENTS.md` — many newer tools do. If yes, use the [AGENTS.md install](#openai-codex--opencode--antigravity--aider-agentsmd).
-2. If it reads from a custom file or directory, copy the contents of `rules/` (the markdown source of truth) and rename to whatever the tool expects.
+2. If it reads from a custom file or directory, copy the files from `templates/` and rename them to whatever the tool expects. The templates are plain markdown with no tool-specific formatting.
 3. Open an issue or PR with the format your tool uses, and we'll add an adapter directory.
 
 ---
@@ -171,11 +176,11 @@ If you've added project-specific rules, keep them in *separate* files (e.g., `04
 
 ## Customizing for your project
 
-The rules are intentionally generic Go. To add project-specific rules, don't edit the existing files — your changes will be overwritten on next sync. Instead, add new files alongside them.
+The rules are intentionally generic Go. To add project-specific rules, don't edit the generated files — your changes will be overwritten on the next sync. Instead, add new files alongside them.
 
 For example, in Cursor:
 
-```
+```text
 .cursor/rules/
   prime-directives.mdc        # from this pack
   go-style.mdc                # from this pack

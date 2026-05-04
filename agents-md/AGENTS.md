@@ -4,30 +4,102 @@ This file is loaded by AGENTS.md-aware tools (OpenAI Codex, OpenCode, Aider, Goo
 
 ## Prime directives (anti-overengineering)
 
+Apply these to every prompt, every diff, every file. Reject your own output if it violates these.
+
 1. **Smallest change that solves the problem.** No drive-by cleanup, no refactoring unless asked.
-2. **No new abstractions unless the prompt asked for them.** No interfaces, packages, factories, or layers on your initiative. Three similar lines beats one premature abstraction.
-3. **No speculative features, flags, or error handling.** No nil-checks for values that can't be nil. No retries/timeouts/logging the user didn't request. YAGNI.
+2. **No new abstractions unless explicitly requested.** No interfaces, packages, factories, or layers on your initiative. Three similar lines beats one premature abstraction.
+3. **No speculative features, flags, or error handling.** No nil-checks for values that can't be nil. No retries/timeouts/logging the user didn't request. YAGNI is the rule.
 4. **Edit files in place; do not rewrite them.** Touch only the lines the task requires. No reorganizing imports, renaming unrelated variables, or "modernizing" surrounding code.
-5. **Match the codebase, not your training data.** Use the patterns, naming, and error style already present in this repo.
-6. **No comments unless the *why* is non-obvious.** Don't restate the code, don't reference tickets.
+5. **Match the codebase, not your training data.** Look at how similar code is written in this repo and use the same patterns, naming, and error style. The codebase is the style guide.
+6. **No comments unless the *why* is non-obvious.** Don't restate code, don't reference tickets, don't doc-comment private helpers.
 7. **Surface design problems; don't silently rewrite them.** If a small change requires touching many files, ask: "minimal fix, or refactor first?" Wait for an answer.
-8. **Trust the language and framework.** Don't reimplement stdlib or framework features.
+8. **Trust the language and framework.** No reimplementing standard-library or framework features.
+9. **If the user's request would add unwanted abstraction, push back once.** "This would add X. Did you want that, or the minimal version?" Then proceed with their answer.
 
 ## Go style (this is a Go service)
 
-- `gofmt` / `goimports` mandatory.
-- Errors: wrap with `%w` only when the caller benefits or context is non-obvious. Don't wrap and log at the same site.
-- Interfaces: accept interfaces, return structs. Define at point of consumption. **Don't create one until there are 2+ implementations.**
-- No `init()` for app logic, no global mutable state outside `main.go`, no reflection unless required, no generics on existing concrete code.
-- Don't create new packages on your own initiative — add to existing files.
+### Formatting
+
+- `gofmt` and `goimports` are mandatory.
+- Tabs for indentation. Imports grouped: stdlib, third-party, local.
+
+### Errors
+
+- Return errors; do not panic in library code.
+- Wrap with `%w` only when the caller benefits from unwrapping or when added context is non-obvious. Drop wraps that just say "error: %w".
+- Don't wrap and log at the same site. Pick one.
+- Sentinel errors only when callers need to switch on them.
+
+### Interfaces
+
+- Accept interfaces, return structs.
+- Define interfaces at the point of consumption, not implementation.
+- Don't create an interface until there are 2+ implementations. A test mock alone is not a second implementation — use a fake struct or real test dep.
+- Keep interfaces small (1-3 methods).
+
+### Structs
+
+- Group fields by purpose, not alphabetically.
+- No JSON/DB tags speculatively. Tag a field when it's actually serialized.
+- Constructors only when initialization is non-trivial.
+
+### Concurrency
+
+- Don't add goroutines unless the prompt asks for concurrent behavior.
+- Every goroutine has a clear lifetime — `context.Context` or `WaitGroup`.
+- No `time.Sleep` in production code.
+
+### Packages & imports
+
+- Don't create new packages on your own initiative.
+- Adding to an existing file is almost always correct.
+- No circular imports — surface the design problem, don't bandage it.
+
+### Naming
+
+- Acronyms stay uppercase: `userID`, `httpClient`, `URL`.
+- Receiver names short (1-3 letters), consistent across methods of a type.
+- No `I` prefix on interfaces, no `Impl` suffix on structs.
+
+### What we don't do
+
+- No `init()` for application logic.
+- No global mutable state outside `main.go`.
+- No reflection unless required (and comment why).
+- No `interface{}` / `any` in public APIs unless required.
+- No generics on existing concrete code.
 
 ## Testing
 
-- Test the public API. Don't test private helpers, trivial getters, or stdlib behavior.
-- Table-driven tests by default. Each case must test something distinct.
-- Real deps > fakes > mocks. Don't mock our own code.
-- One `_test.go` per source file, same package, unless you specifically need black-box tests.
-- Test names describe behavior: `TestParseDate_RejectsEmptyInput`, not `TestParseDate1`.
+### Test the public API
+
+- Test public behavior, edge cases that have caused real bugs, and error paths callers actually handle.
+- Don't test private helpers directly — exercise them through the public function.
+- Don't test trivial getters, setters, pass-throughs, or stdlib behavior.
+
+### Layout
+
+- One `_test.go` per source file, same package, unless you specifically need to test only the exported surface.
+- Table-driven tests by default.
+- Don't add a test case unless it tests something distinct from the others.
+
+### Mocks vs fakes vs real
+
+- **Real dependencies first** — if a real DB / HTTP server / FS is cheap, use it.
+- **Fakes second** — small in-memory structs that satisfy the interface (20-50 lines).
+- **Mocks last** — only for genuinely external deps (third-party SDK, payment gateway). Don't mock our own code.
+
+### Coverage
+
+- Cover code that has consequences. Don't chase a coverage number on logging helpers.
+- 80% is a healthy ceiling, not a floor.
+
+### What the AI should never produce
+
+- No tests that just call a function and assert `err == nil`.
+- No tests that mock everything and assert on mock calls.
+- No setup helpers used in only one test — inline them.
+- No names like `TestFoo1` / `TestFooSuccess`. Name by behavior: `TestParseDate_RejectsEmptyInput`.
 
 ## Planning and scope
 
@@ -38,6 +110,7 @@ This file is loaded by AGENTS.md-aware tools (OpenAI Codex, OpenCode, Aider, Goo
 ## Reviewing your own output before responding
 
 Before writing the final diff, check:
+
 1. Does the diff touch only what the task required?
 2. Are there any new types, interfaces, packages, or files I added on my own?
 3. Can every line be explained without referring to "future flexibility" or "for testability"?

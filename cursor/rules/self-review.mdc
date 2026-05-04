@@ -1,0 +1,15 @@
+---
+description: Self-review checklist before every response. Apply to every change.
+alwaysApply: true
+---
+
+# Self-Review
+
+Before writing the final diff, check:
+
+1. Does the diff touch only what the task required?
+2. Are there any new types, interfaces, packages, or files I added on my own?
+3. Can every line be explained without referring to "future flexibility" or "for testability"?
+4. Does it look like the rest of this codebase?
+
+If any answer is "no", revise before responding.

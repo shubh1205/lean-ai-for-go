@@ -19,28 +19,56 @@ This project is intentionally small. Before opening a PR, please read.
 ## Before you open a PR
 
 1. **Read the rule you're changing or adding to its end.** Rules contradict each other less when you've seen the whole file.
-2. **Test it.** If you're touching a Cursor `.mdc` file, install it locally and verify Cursor still loads it. If you're touching a Claude Code slash command, run it.
-3. **Keep diffs minimal.** Editor reformatting whole files is hard to review.
-4. **Update the matching files in every tool directory.** Rules live in multiple places by design (one per tool's preferred format). If you change a rule, propagate it to all of:
-   - `rules/<file>.md` (source of truth)
-   - `cursor/rules/<file>.mdc`
-   - `claude-code/CLAUDE.md` (relevant section)
-   - `agents-md/AGENTS.md` (relevant section)
-   - `copilot/copilot-instructions.md` and the matching `copilot/instructions/*.instructions.md`
-   - `windsurf/.windsurfrules`
-   - `cline/.clinerules`
 
-   A PR that updates only one tool's files will be asked to propagate before merge.
+2. **Edit `templates/` only — never edit tool-specific files directly.** The files in `cursor/`, `claude-code/`, `agents-md/`, `copilot/`, `windsurf/`, and `cline/` are generated from `templates/` by `sync-rules.sh`. Direct edits will be overwritten.
+
+3. **Run the pre-commit hook setup once** (if you haven't already):
+
+   ```bash
+   git config core.hooksPath .githooks
+   ```
+
+   After that, committing any change to `templates/` automatically lints the templates, regenerates all tool files, lints the output, and stages the result. The commit is blocked on any lint error.
+
+4. **If you're adding or restructuring template files**, also update `sync-rules.sh` to wire the new file into each tool's output, and update the `GENERATED_FILES` array in `.githooks/pre-commit` so the new output is linted and staged.
+
+5. **Test it.** If you're touching a Cursor `.mdc` file path or frontmatter, install it locally and verify Cursor still loads it. If you're touching a Claude Code slash command, run it.
+
+6. **Keep diffs minimal.** Editor reformatting whole files is hard to review.
+
+## How the two-folder model works
+
+```text
+templates/          ← edit here
+    prime-directives.md
+    go-style.md
+    testing.md
+    planning-scope.md
+    self-review.md
+
+sync-rules.sh       ← assembles templates into tool-specific formats
+
+cursor/rules/       ← generated (do not edit directly)
+claude-code/        ← generated (do not edit directly)
+agents-md/          ← generated (do not edit directly)
+copilot/            ← generated (do not edit directly)
+windsurf/           ← generated (do not edit directly)
+cline/              ← generated (do not edit directly)
+```
+
+`rules/` is the verbose developer reference — the *why* behind each rule, with worked examples and enforcement guidance. Read it to understand the reasoning; don't edit it to change what AI tools see.
 
 ## Style for rule files
 
 - Use `##` headers and short bulleted lists. Long prose tends to dilute rules.
 - Lead each rule with the imperative ("Don't add goroutines unless..." not "Goroutines should be avoided...").
 - When you say "don't X", give the reason in one short clause. People follow rules they understand.
+- Lines can be as long as the sentence needs. The linter has line-length checking disabled — clarity beats wrapping.
 
 ## Reporting issues
 
 Issues are welcome for:
+
 - Unclear rules that produced wrong AI output.
 - Rules that contradict each other.
 - Tool versions where the install instructions break.

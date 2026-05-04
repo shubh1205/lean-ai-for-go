@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+# pre-commit hook: when templates/ files are staged, lint them, regenerate all
+# tool-specific rule files via sync-rules.sh, lint the output, and stage it.
+# Commit is blocked on any lint error.
+
+set -euo pipefail
+
+ROOT="$(git rev-parse --show-toplevel)"
+
+# Only staged additions/modifications/renames in templates/ trigger this.
+staged_templates=()
+while IFS= read -r f; do
+    [[ -n "$f" ]] && staged_templates+=("$f")
+done < <(git diff --cached --name-only --diff-filter=ACMR | grep '^templates/' || true)
+
+if [[ ${#staged_templates[@]} -eq 0 ]]; then
+    exit 0
+fi
+
+echo "templates/ changes detected — running lint + sync..."
+echo ""
+
+# Resolve markdownlint binary (global install preferred, npx fallback).
+if command -v markdownlint &>/dev/null; then
+    MDLINT="markdownlint"
+elif command -v npx &>/dev/null; then
+    MDLINT="npx --yes markdownlint-cli"
+else
+    echo "ERROR: markdownlint is not installed and npx is not available."
+    echo "Install markdownlint: npm install -g markdownlint-cli"
+    exit 1
+fi
+
+cd "$ROOT"
+
+# ── 1. Lint staged template files ────────────────────────────────────────────
+echo "Linting templates/..."
+if ! $MDLINT "${staged_templates[@]}"; then
+    echo ""
+    echo "COMMIT BLOCKED: fix the lint errors in templates/ before committing."
+    exit 1
+fi
+echo "  templates/ OK"
+echo ""
+
+# ── 2. Regenerate all tool-specific rule files ────────────────────────────────
+echo "Running sync-rules.sh..."
+if ! bash "$ROOT/sync-rules.sh"; then
+    echo ""
+    echo "COMMIT BLOCKED: sync-rules.sh failed."
+    exit 1
+fi
+echo ""
+
+# ── 3. Lint all generated files ───────────────────────────────────────────────
+GENERATED_FILES=(
+    "cursor/rules/prime-directives.mdc"
+    "cursor/rules/go-style.mdc"
+    "cursor/rules/testing.mdc"
+    "cursor/rules/planning-scope.mdc"
+    "cursor/rules/self-review.mdc"
+    "claude-code/CLAUDE.md"
+    "agents-md/AGENTS.md"
+    "copilot/copilot-instructions.md"
+    "copilot/instructions/go-style.instructions.md"
+    "copilot/instructions/testing.instructions.md"
+    "windsurf/.windsurfrules"
+    "cline/.clinerules"
+)
+
+echo "Linting generated files..."
+if ! $MDLINT "${GENERATED_FILES[@]}"; then
+    echo ""
+    echo "COMMIT BLOCKED: sync-rules.sh produced files with lint errors."
+    echo "Fix the template content and try again."
+    exit 1
+fi
+echo "  generated files OK"
+echo ""
+
+# ── 4. Stage regenerated files so they're included in the commit ─────────────
+echo "Staging regenerated files..."
+git add "${GENERATED_FILES[@]}"
+
+echo "All checks passed."

@@ -1,14 +1,3 @@
----
-description: Go coding style and idioms enforced in this repo.
-globs:
-  - "**/*.go"
-  - "**/go.mod"
-  - "**/go.sum"
-alwaysApply: false
----
-
-# Go Style
-
 ## Formatting
 
 - `gofmt` and `goimports` are mandatory.

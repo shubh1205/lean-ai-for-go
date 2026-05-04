@@ -1,9 +1,3 @@
----
-applyTo: "**/*_test.go"
----
-
-# Testing
-
 ## Test the public API
 
 - Test public behavior, edge cases that have caused real bugs, and error paths callers actually handle.

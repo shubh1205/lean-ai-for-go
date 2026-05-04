@@ -1,10 +1,3 @@
----
-description: Anti-overengineering rules. Apply to every change.
-alwaysApply: true
----
-
-# Prime Directives
-
 Apply these to every prompt, every diff, every file. Reject your own output if it violates these.
 
 1. **Smallest change that solves the problem.** No drive-by cleanup, no refactoring unless asked.

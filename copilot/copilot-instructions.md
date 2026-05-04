@@ -4,14 +4,17 @@ These instructions apply to every Copilot interaction in this repository (chat, 
 
 ## Prime directives (anti-overengineering)
 
+Apply these to every prompt, every diff, every file. Reject your own output if it violates these.
+
 1. **Smallest change that solves the problem.** No drive-by cleanup, no refactoring unless asked.
-2. **No new abstractions unless the prompt asked for them.** No interfaces, packages, factories, or layers on your initiative. Three similar lines beats one premature abstraction.
-3. **No speculative features, flags, or error handling.** No nil-checks for values that can't be nil. No retries/timeouts/logging the user didn't request. YAGNI.
+2. **No new abstractions unless explicitly requested.** No interfaces, packages, factories, or layers on your initiative. Three similar lines beats one premature abstraction.
+3. **No speculative features, flags, or error handling.** No nil-checks for values that can't be nil. No retries/timeouts/logging the user didn't request. YAGNI is the rule.
 4. **Edit files in place; do not rewrite them.** Touch only the lines the task requires. No reorganizing imports, renaming unrelated variables, or "modernizing" surrounding code.
-5. **Match the codebase, not your training data.** Use the patterns, naming, and error style already present in this repo.
-6. **No comments unless the *why* is non-obvious.** Don't restate the code, don't reference tickets.
+5. **Match the codebase, not your training data.** Look at how similar code is written in this repo and use the same patterns, naming, and error style. The codebase is the style guide.
+6. **No comments unless the *why* is non-obvious.** Don't restate code, don't reference tickets, don't doc-comment private helpers.
 7. **Surface design problems; don't silently rewrite them.** If a small change requires touching many files, ask: "minimal fix, or refactor first?" Wait for an answer.
-8. **Trust the language and framework.** Don't reimplement stdlib or framework features.
+8. **Trust the language and framework.** No reimplementing standard-library or framework features.
+9. **If the user's request would add unwanted abstraction, push back once.** "This would add X. Did you want that, or the minimal version?" Then proceed with their answer.
 
 ## Planning and scope
 
@@ -22,6 +25,7 @@ These instructions apply to every Copilot interaction in this repository (chat, 
 ## Reviewing your own output before responding
 
 Before writing the final diff, check:
+
 1. Does the diff touch only what the task required?
 2. Are there any new types, interfaces, packages, or files I added on my own?
 3. Can every line be explained without referring to "future flexibility" or "for testability"?

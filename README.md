@@ -21,13 +21,22 @@ The rules are short. The prompts are short. The list of slash commands is short.
 
 ## What's in the box
 
-```
+```text
 lean-ai-for-go/
-├── rules/                    Source of truth — read these first
-│   ├── 00-prime-directives.md      Anti-overengineering rules. The most important file.
-│   ├── 01-go-style.md              Go idioms enforced
-│   ├── 02-testing.md               What to test, what not to
-│   └── 03-prompting.md             How to prompt + how to review AI output
+├── templates/                Source of truth — edit these to change rules
+│   ├── prime-directives.md        Anti-overengineering rules (condensed)
+│   ├── go-style.md                Go idioms enforced
+│   ├── testing.md                 Testing rules
+│   ├── planning-scope.md          When to plan vs just write code
+│   └── self-review.md             Pre-response checklist for AI
+│
+├── rules/                    Verbose developer reference — the why behind each rule
+│   ├── 00-prime-directives.md     Full explanation with enforcement guidance
+│   ├── 01-go-style.md             Annotated Go idioms
+│   ├── 02-testing.md              Testing guide with examples
+│   └── 03-prompting.md            How to prompt + how to review AI output
+│
+├── sync-rules.sh             Regenerates all tool files from templates/
 │
 ├── cursor/rules/             → Cursor (.cursor/rules/*.mdc)
 ├── claude-code/              → Claude Code (CLAUDE.md + .claude/commands/)
@@ -39,6 +48,11 @@ lean-ai-for-go/
 └── examples/                 Worked before/after prompts
 ```
 
+**Two-folder model:**
+
+- Edit `templates/` to change what AI tools see. Run `./sync-rules.sh` (or just commit — the pre-commit hook does it automatically) and all tool-specific files are regenerated.
+- Read `rules/` to understand why a rule exists. The verbose files explain the reasoning and failure modes. They are not compiled into tool files.
+
 ## Install (60 seconds, per tool)
 
 Clone this repo somewhere local — most users put it next to their project repos.
@@ -49,24 +63,28 @@ git clone https://github.com/your-org/lean-ai-for-go.git ~/code/lean-ai-for-go
 
 Then in the Go project where you want the rules, run the snippet for your tool. You can install for multiple tools in the same project — they don't conflict.
 
-**Cursor**
+### Cursor
+
 ```bash
 mkdir -p .cursor/rules
 cp -R ~/code/lean-ai-for-go/cursor/rules/. .cursor/rules/
 ```
 
-**Claude Code**
+### Claude Code
+
 ```bash
 cp ~/code/lean-ai-for-go/claude-code/CLAUDE.md ./CLAUDE.md
 mkdir -p .claude/commands && cp ~/code/lean-ai-for-go/claude-code/commands/*.md .claude/commands/
 ```
 
-**OpenAI Codex / OpenCode / Antigravity / Aider** *(any AGENTS.md-aware tool)*
+### OpenAI Codex / OpenCode / Antigravity / Aider
+
 ```bash
 cp ~/code/lean-ai-for-go/agents-md/AGENTS.md ./AGENTS.md
 ```
 
-**GitHub Copilot**
+### GitHub Copilot
+
 ```bash
 mkdir -p .github/instructions .github/prompts
 cp ~/code/lean-ai-for-go/copilot/copilot-instructions.md .github/copilot-instructions.md
@@ -74,12 +92,14 @@ cp ~/code/lean-ai-for-go/copilot/instructions/*.instructions.md .github/instruct
 cp ~/code/lean-ai-for-go/copilot/prompts/*.prompt.md .github/prompts/
 ```
 
-**Windsurf**
+### Windsurf
+
 ```bash
 cp ~/code/lean-ai-for-go/windsurf/.windsurfrules ./.windsurfrules
 ```
 
-**Cline**
+### Cline
+
 ```bash
 cp ~/code/lean-ai-for-go/cline/.clinerules ./.clinerules
 ```
@@ -99,7 +119,7 @@ If you only remember five things from this pack:
 ## Compatibility
 
 | Tool | Status | How rules are loaded |
-|------|--------|---------------------|
+| --- | --- | --- |
 | **Cursor** (0.45+) | ✅ Tested | `.cursor/rules/*.mdc` with `applyTo`/`globs` frontmatter |
 | **Claude Code** | ✅ Tested | `CLAUDE.md` at repo root + `.claude/commands/*.md` slash commands |
 | **OpenAI Codex CLI** | ✅ Supported | `AGENTS.md` at repo root |
@@ -109,9 +129,9 @@ If you only remember five things from this pack:
 | **GitHub Copilot** | ✅ Supported | `.github/copilot-instructions.md` + `.github/instructions/` + `.github/prompts/` |
 | **Windsurf** (Codeium) | ✅ Supported | `.windsurfrules` at repo root |
 | **Cline** | ✅ Supported | `.clinerules` at repo root |
-| **Continue.dev / Zed / others** | 🟡 Likely works | Most tools accept `AGENTS.md` or a markdown rules file — point them at `agents-md/AGENTS.md` or `rules/` |
+| **Continue.dev / Zed / others** | 🟡 Likely works | Most tools accept `AGENTS.md` or a markdown rules file — point them at `agents-md/AGENTS.md` or `templates/` |
 
-If your tool isn't listed and uses a different rule format, point it at `rules/` (the markdown source of truth) or open an issue.
+If your tool isn't listed and uses a different rule format, point it at `templates/` (the condensed source) or open an issue.
 
 ## What this is *not*
 
@@ -125,8 +145,8 @@ If your tool isn't listed and uses a different rule format, point it at `rules/`
 The rules are designed to be edited. Suggested approach:
 
 1. **Fork or vendor.** Either fork this repo or copy the relevant tool directories directly into your codebase under a path you control.
-2. **Add project-specific rules in new files.** Don't edit the originals — that makes future merges painful. Add e.g. `rules/04-our-conventions.md` (and a matching tool-specific file) for things like "use our internal logger, not slog" or "errors must include the request ID".
-3. **Keep additions short.** If a rule file gets longer than 100 lines, split it.
+2. **Edit `templates/` only.** Don't edit tool-specific files directly — your changes will be overwritten by the next `./sync-rules.sh` run. Add project-specific rules to `templates/` or create new template files and wire them into `sync-rules.sh`.
+3. **Keep additions short.** If a template file gets longer than 100 lines, split it.
 
 ## Inspired by
 
@@ -135,6 +155,7 @@ This pack borrows from [`everything-claude-code`](https://github.com/affaan-m/ev
 ## Contributing
 
 Issues and PRs welcome — especially:
+
 - Real before/after prompt examples that worked for you.
 - Go idioms the rules miss.
 - Tooling differences across editor versions.
