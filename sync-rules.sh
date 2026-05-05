@@ -323,5 +323,81 @@ cat "$T/self-review.md"
 } > "$ROOT/cline/.clinerules"
 
 echo "  ✓ cline/.clinerules"
+
+# ── Claude Code commands (claude-code/commands/) ──────────────────────────────
+# Frontmatter is injected here; template body uses $ARGUMENTS as the arg placeholder.
+
+{
+cat <<'EOF'
+---
+description: Plan a change before coding, then surface any Go concepts the plan uses so you can understand them before implementation. Use when the change spans 3+ files or crosses package boundaries.
+---
+
+EOF
+cat "$T/commands/lean-plan.md"
+} > "$ROOT/claude-code/commands/lean-plan.md"
+
+{
+cat <<'EOF'
+---
+description: Review the most recent change (or a specified file) and remove unnecessary complexity. Surfaces removed patterns with a brief explanation so you understand why simpler wins here. Does not add features.
+---
+
+EOF
+cat "$T/commands/lean-simplify.md"
+} > "$ROOT/claude-code/commands/lean-simplify.md"
+
+{
+cat <<'EOF'
+---
+description: Review pending Go changes against this repo's style and the prime directives. Reports issues; does not edit unless asked. Surfaces any advanced Go concepts in the diff so you can appreciate what the code is doing.
+---
+
+EOF
+cat "$T/commands/lean-review.md"
+} > "$ROOT/claude-code/commands/lean-review.md"
+
+echo "  ✓ claude-code/commands/"
+
+# ── Copilot prompts (copilot/prompts/) ────────────────────────────────────────
+# Same template body; mode:agent frontmatter added, $ARGUMENTS replaced with
+# ${input:<name>:<hint>} per-command syntax for the Copilot prompt picker.
+
+{
+cat <<'EOF'
+---
+mode: agent
+description: Plan a change before coding, then surface any Go concepts the plan uses so you can understand them before implementation. Use when the change spans 3+ files or crosses package boundaries.
+---
+
+EOF
+sed 's/\$ARGUMENTS/${input:task:Describe the change}/g' "$T/commands/lean-plan.md"
+} > "$ROOT/copilot/prompts/lean-plan.prompt.md"
+
+{
+cat <<'EOF'
+---
+mode: agent
+description: Review the most recent change and remove unnecessary complexity. Surfaces removed patterns with a brief explanation so you understand why simpler wins here. Does not add features.
+---
+
+EOF
+sed 's|\$ARGUMENTS|${input:target:File or area to simplify (leave empty for most recent change)}|g' \
+    "$T/commands/lean-simplify.md"
+} > "$ROOT/copilot/prompts/lean-simplify.prompt.md"
+
+{
+cat <<'EOF'
+---
+mode: agent
+description: Review pending Go changes against repo style and the prime directives. Reports issues; does not edit. Surfaces advanced concepts in the diff so you can appreciate what the code is doing.
+---
+
+EOF
+sed 's|\$ARGUMENTS|${input:target:File or diff to review (leave empty for staged + unstaged changes)}|g' \
+    "$T/commands/lean-review.md"
+} > "$ROOT/copilot/prompts/lean-review.prompt.md"
+
+echo "  ✓ copilot/prompts/"
 echo ""
 echo "Done. All tool rule files are up to date."

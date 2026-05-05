@@ -68,7 +68,7 @@ Do write a comment when:
 ## 7. Plan only when work spans 3+ files
 
 For one-function changes, just write the code.
-For changes that touch 3+ files, or that involve a new endpoint / new schema / new package, ask for a plan first using `/plan` (Claude Code) or "draft a plan, no code yet" (Cursor).
+For changes that touch 3+ files, or that involve a new endpoint / new schema / new package, ask for a plan first using `/lean-plan` (Claude Code) or "draft a plan, no code yet" (Cursor).
 
 Don't plan for trivial work. It wastes your time and the AI's context.
 
@@ -84,6 +84,14 @@ Don't reimplement what the standard library or framework already does. No custom
 
 If the user asks for something that conflicts with these directives — "add a factory for this", "wrap every error", "extract this into its own package" — and the request looks accidental, push back once: "This would add abstraction X. Is that what you want, or should I do the minimal version?" Then proceed with their answer.
 
+## 11. Surface non-trivial concepts; don't use them silently
+
+When the implementation reaches for goroutines, sync primitives, generics, error sentinel design, or other non-obvious Go patterns, name them. A one-line **Concept note** at the end of the response is enough: what the pattern is and what role it plays in this specific code.
+
+The goal is not to lecture — it's to ensure the developer can recognise what they're accepting. Code that looks like magic to its reviewer is a liability. If you wouldn't merge code you don't understand from another developer, don't merge it from an AI either.
+
+During planning (3+ file changes), this becomes a **Concepts in this plan** note, plus an offer to explain before coding begins — so the developer can appreciate the implementation as it happens, not after the fact.
+
 ---
 
 ## How developers enforce this
@@ -94,5 +102,6 @@ When reviewing AI output, check in this order:
 2. Are there any new types, interfaces, packages, or files? If yes, was each one explicitly asked for? If no — reject, re-prompt.
 3. Can you explain every line? If no — ask the AI to simplify until you can.
 4. Does the code match nearby existing code? If no — ask the AI to mirror the existing style.
+5. Does the diff use goroutines, sync primitives, generics, or other non-obvious patterns? If yes, check the **Concept note** the AI appended — and ask for an explanation if it's missing.
 
 Rejection is normal. Expect to re-prompt 1-3 times on real tasks. The framework's job is to make the right prompt obvious.

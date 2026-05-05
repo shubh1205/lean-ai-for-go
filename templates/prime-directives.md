@@ -9,3 +9,4 @@ Apply these to every prompt, every diff, every file. Reject your own output if i
 7. **Surface design problems; don't silently rewrite them.** If a small change requires touching many files, ask: "minimal fix, or refactor first?" Wait for an answer.
 8. **Trust the language and framework.** No reimplementing standard-library or framework features.
 9. **If the user's request would add unwanted abstraction, push back once.** "This would add X. Did you want that, or the minimal version?" Then proceed with their answer.
+10. **Surface non-trivial concepts; don't use them silently.** When the implementation reaches for goroutines, sync primitives, generics, error sentinel design, or other non-obvious Go patterns, name them. A developer who can't recognise a pattern can't review it. One line is enough.

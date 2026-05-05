@@ -45,7 +45,7 @@ Faster to do it yourself:
 
 The AI is for: new code paths, unfamiliar areas, boilerplate that fits a clear pattern, test scaffolding, and "explain what this does" reading tasks.
 
-## Reviewing AI output: the four checks
+## Reviewing AI output: the five checks
 
 Before accepting a diff, in order:
 
@@ -53,6 +53,7 @@ Before accepting a diff, in order:
 2. **Abstraction check.** Any new interfaces, packages, files, or types? If yes, did I ask for each one? If no — reject.
 3. **Comprehension check.** Can I explain every line without re-reading? If no — ask the AI to simplify until I can.
 4. **Pattern check.** Does it look like the rest of the codebase? If no — point at a similar file and ask for a re-pass.
+5. **Concept check.** Does the diff use goroutines, sync primitives, generics, or other non-obvious patterns? If yes, read the **Concept note** the AI appended. If it's missing, ask: "What Go concepts does this use and why?"
 
 Three rejections are normal on a hard task. Four is a sign the prompt is wrong, not the AI.
 
@@ -64,7 +65,7 @@ When you get a bloated diff, the fix is usually a single follow-up:
 
 If it overengineers a second time on the same task, the task is the wrong size for one prompt — break it down.
 
-## When to use `/plan` (Claude Code) or "draft a plan first" (Cursor)
+## When to use `/lean-plan` (Claude Code) or "draft a plan first" (Cursor)
 
 Use it when:
 - The task touches 3+ files.
@@ -78,6 +79,18 @@ Don't use it when:
 - The work is bounded enough that re-prompting is cheaper than planning.
 
 A plan is a tool for alignment, not a ritual.
+
+`/lean-plan` goes one step further than a plain plan: after listing files and risks, it scans the plan for non-trivial Go concepts (goroutines, channels, sync primitives, generics, error sentinel design, interface patterns) and lists each one with a one-line explanation. If it finds any, it asks whether you'd like a deeper explanation before coding starts. This keeps the implementation lean without keeping you in the dark about what you're agreeing to.
+
+## Understanding the concept notes
+
+Every AI response that uses a non-trivial Go pattern appends a **Concept note** — a short section at the end naming each pattern and what role it plays in this specific code. These are intentionally brief: one line per concept.
+
+If a concept note is missing on a diff that uses goroutines or sync primitives, ask:
+
+> "What Go concepts does this diff use and why? Add a concept note."
+
+Use `/lean-simplify` on a file to remove unnecessary complexity and learn *why* each removed pattern was the wrong tool here — and when it *would* be the right one.
 
 ## Worked examples
 

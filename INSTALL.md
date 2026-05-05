@@ -68,16 +68,16 @@ cp ~/code/lean-ai-for-go/claude-code/commands/*.md .claude/commands/
 **Verify:** run `claude` in the project directory and try:
 
 ```text
-/plan add a /healthz endpoint to main.go
+/lean-plan add a /healthz endpoint to main.go
 ```
 
-You should see the assistant produce a plan (file list, risks, out-of-scope, open questions) instead of writing code.
+You should see the assistant produce a plan (file list, risks, out-of-scope, open questions) and then surface any Go concepts it uses so you can choose to learn about them before implementation starts.
 
 **Available commands after install:**
 
-- `/plan <task>` — produce a plan, no code, before any non-trivial change.
-- `/simplify [target]` — review the most recent change (or a target) and remove unnecessary complexity.
-- `/go-review [target]` — review pending Go changes against the rules; report issues, don't edit.
+- `/lean-plan <task>` — produce a lean plan, surface Go concepts used, and offer to explain them before coding.
+- `/lean-simplify [target]` — review the most recent change (or a target), remove unnecessary complexity, and explain what was removed and why.
+- `/lean-review [target]` — review pending Go changes against the rules; report issues, surface advanced concepts in the diff.
 
 ---
 
@@ -143,7 +143,7 @@ cp ~/code/lean-ai-for-go/copilot/prompts/*.prompt.md .github/prompts/
 **Verify:**
 
 - In Copilot Chat: ask "show me the loaded instructions" — it should reference the prime directives.
-- In Copilot Chat: type `/plan` (or use the prompt picker). The `plan`, `simplify`, and `go-review` prompts should appear.
+- In Copilot Chat: type `/lean-plan` (or use the prompt picker). The `lean-plan`, `lean-simplify`, and `lean-review` prompts should appear.
 
 **Note:** path-scoped instructions and prompt files require a recent Copilot Chat version (VS Code Copilot Chat 0.20+, or the equivalent on JetBrains). The repo-wide `copilot-instructions.md` works on all versions.
 
@@ -277,9 +277,9 @@ rm -rf .claude/commands
 # Copilot — delete instruction and prompt files; edit or delete copilot-instructions.md
 rm -f .github/instructions/go-style.instructions.md \
       .github/instructions/testing.instructions.md \
-      .github/prompts/plan.prompt.md \
-      .github/prompts/simplify.prompt.md \
-      .github/prompts/go-review.prompt.md
+      .github/prompts/lean-plan.prompt.md \
+      .github/prompts/lean-simplify.prompt.md \
+      .github/prompts/lean-review.prompt.md
 # If copilot-instructions.md was created by this pack: rm .github/copilot-instructions.md
 # If copilot-instructions.md already existed: remove the appended section manually
 

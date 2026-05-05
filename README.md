@@ -28,7 +28,11 @@ lean-ai-for-go/
 │   ├── go-style.md                Go idioms enforced
 │   ├── testing.md                 Testing rules
 │   ├── planning-scope.md          When to plan vs just write code
-│   └── self-review.md             Pre-response checklist for AI
+│   ├── self-review.md             Pre-response checklist for AI
+│   └── commands/                  Slash-command bodies (generated into claude-code/ and copilot/)
+│       ├── lean-plan.md               Plan + concept spotlight + learning offer
+│       ├── lean-simplify.md           Simplify + explain what was removed and why
+│       └── lean-review.md             Review + surface advanced concepts in the diff
 │
 ├── rules/                    Verbose developer reference — the why behind each rule
 │   ├── 00-prime-directives.md     Full explanation with enforcement guidance
@@ -50,7 +54,7 @@ lean-ai-for-go/
 
 **Two-folder model:**
 
-- Edit `templates/` to change what AI tools see. Run `./sync-rules.sh` (or just commit — the pre-commit hook does it automatically) and all tool-specific files are regenerated.
+- Edit `templates/` to change what AI tools see. Run `./sync-rules.sh` (or just commit — the pre-commit hook does it automatically) and all tool-specific files are regenerated. Slash-command bodies live in `templates/commands/`; `sync-rules.sh` injects the right frontmatter and variable syntax for each tool.
 - Read `rules/` to understand why a rule exists. The verbose files explain the reasoning and failure modes. They are not compiled into tool files.
 
 ## Install (60 seconds, per tool)
@@ -106,15 +110,16 @@ cp ~/code/lean-ai-for-go/cline/.clinerules ./.clinerules
 
 See [`INSTALL.md`](INSTALL.md) for verification steps per tool, updates, and per-developer overrides.
 
-## The five things to internalize
+## The six things to internalize
 
-If you only remember five things from this pack:
+If you only remember six things from this pack:
 
 1. **"Smallest change that does X"** — say this in every prompt. It's the magic phrase against bloat.
 2. **No new abstractions unless the prompt asked.** No interfaces, no packages, no factories on the AI's initiative.
 3. **Edit files in place. Don't rewrite them.** Reject diffs that touch unrelated code.
-4. **Plan only when work spans 3+ files.** For one-function changes, just ask.
-5. **If you can't explain the AI's code line-by-line, don't merge it.** Ask the AI to simplify until you can.
+4. **Plan only when work spans 3+ files.** Use `/lean-plan` — it plans, then names any non-trivial Go concepts the plan uses and offers to explain them before coding starts.
+5. **If you can't explain the AI's code line-by-line, don't merge it.** The AI appends a **Concept note** to every diff that uses goroutines, sync primitives, generics, or other non-obvious patterns — read it before accepting.
+6. **Lean output ≠ shallow output.** The rules keep code small; the concept spotting ensures you understand what you're merging.
 
 ## Compatibility
 

@@ -14,7 +14,7 @@ This project is intentionally small. Before opening a PR, please read.
 - **New rules.** Each rule must justify its existence by pointing at a concrete failure mode it prevents. If the failure is rare or the rule is vague, the answer is usually no.
 - **Project-specific or org-specific guidance.** Examples like "use our internal logger" belong in your fork, not here. The published rules stay generic.
 - **AI-internals jargon.** This pack is for developers, not for prompt engineers. Keep the vocabulary plain.
-- **New slash commands or directories.** Three commands is on purpose. New ones need a clear reason and a non-overlapping scope.
+- **New slash commands or directories.** Three commands (`lean-plan`, `lean-simplify`, `lean-review`) is on purpose. New ones need a clear reason and a non-overlapping scope. Command bodies live in `templates/commands/` — edit them there, not in the tool-specific output directories.
 
 ## Before you open a PR
 
@@ -39,21 +39,29 @@ This project is intentionally small. Before opening a PR, please read.
 ## How the two-folder model works
 
 ```text
-templates/          ← edit here
+templates/              ← edit here
     prime-directives.md
     go-style.md
     testing.md
     planning-scope.md
     self-review.md
+    commands/           ← slash-command bodies; edit here, not in tool directories
+        lean-plan.md
+        lean-simplify.md
+        lean-review.md
 
-sync-rules.sh       ← assembles templates into tool-specific formats
+sync-rules.sh           ← assembles templates into tool-specific formats
+                           injects frontmatter and variable syntax per tool
 
-cursor/rules/       ← generated (do not edit directly)
-claude-code/        ← generated (do not edit directly)
-agents-md/          ← generated (do not edit directly)
-copilot/            ← generated (do not edit directly)
-windsurf/           ← generated (do not edit directly)
-cline/              ← generated (do not edit directly)
+cursor/rules/           ← generated (do not edit directly)
+claude-code/            ← generated (do not edit directly)
+    CLAUDE.md
+    commands/           ← generated from templates/commands/
+agents-md/              ← generated (do not edit directly)
+copilot/                ← generated (do not edit directly)
+    prompts/            ← generated from templates/commands/
+windsurf/               ← generated (do not edit directly)
+cline/                  ← generated (do not edit directly)
 ```
 
 `rules/` is the verbose developer reference — the *why* behind each rule, with worked examples and enforcement guidance. Read it to understand the reasoning; don't edit it to change what AI tools see.

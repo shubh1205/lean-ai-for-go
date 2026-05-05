@@ -4,5 +4,9 @@ Before writing the final diff, check:
 2. Are there any new types, interfaces, packages, or files I added on my own?
 3. Can every line be explained without referring to "future flexibility" or "for testability"?
 4. Does it look like the rest of this codebase?
+5. Does the diff use any non-trivial Go concept — goroutines, channels, sync primitives, generics,
+   error wrapping patterns, context propagation, interface patterns? If yes, add a
+   **Concept note** at the end of the response: one line per concept — what it is and what role
+   it plays in this specific code.
 
-If any answer is "no", revise before responding.
+If any answer to 1–4 is "no", revise before responding.
