@@ -62,19 +62,19 @@ lean-ai-for-go/
 From the root of your Go project, run:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/your-org/lean-ai-for-go/main/install.sh | bash -s -- claude-code
+curl -sSL https://raw.githubusercontent.com/shubh1205/lean-ai-for-go/main/install.sh | bash -s -- claude-code
 ```
 
 Replace `claude-code` with one or more of: `cursor`, `claude-code`, `agents-md`, `copilot`, `windsurf`, `cline`. You can install several tools in one go:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/your-org/lean-ai-for-go/main/install.sh | bash -s -- cursor copilot
+curl -sSL https://raw.githubusercontent.com/shubh1205/lean-ai-for-go/main/install.sh | bash -s -- cursor copilot
 ```
 
 Pin to a tag for reproducible installs:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/your-org/lean-ai-for-go/v1/install.sh | bash -s -- --ref=v1 claude-code
+curl -sSL https://raw.githubusercontent.com/shubh1205/lean-ai-for-go/v1/install.sh | bash -s -- --ref=v1 claude-code
 ```
 
 The installer prints the `.gitignore` lines to add when it finishes — see the note below on why.

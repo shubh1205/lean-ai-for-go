@@ -10,16 +10,16 @@ From the root of your project:
 
 ```bash
 # Single tool
-curl -sSL https://raw.githubusercontent.com/your-org/lean-ai-for-go/main/install.sh | bash -s -- claude-code
+curl -sSL https://raw.githubusercontent.com/shubh1205/lean-ai-for-go/main/install.sh | bash -s -- claude-code
 
 # Multiple tools at once
-curl -sSL https://raw.githubusercontent.com/your-org/lean-ai-for-go/main/install.sh | bash -s -- cursor copilot
+curl -sSL https://raw.githubusercontent.com/shubh1205/lean-ai-for-go/main/install.sh | bash -s -- cursor copilot
 
 # Pin to a tag for reproducible installs (recommended for shared scripts/CI)
-curl -sSL https://raw.githubusercontent.com/your-org/lean-ai-for-go/v1/install.sh | bash -s -- --ref=v1 claude-code
+curl -sSL https://raw.githubusercontent.com/shubh1205/lean-ai-for-go/v1/install.sh | bash -s -- --ref=v1 claude-code
 
 # List supported tools
-curl -sSL https://raw.githubusercontent.com/your-org/lean-ai-for-go/main/install.sh | bash -s -- --list
+curl -sSL https://raw.githubusercontent.com/shubh1205/lean-ai-for-go/main/install.sh | bash -s -- --list
 ```
 
 Tools accepted: `cursor`, `claude-code`, `agents-md`, `copilot`, `windsurf`, `cline`.
@@ -34,7 +34,7 @@ The script:
 If you'd rather not pipe `curl` to `bash`, fetch the script first and inspect it:
 
 ```bash
-curl -fsSLO https://raw.githubusercontent.com/your-org/lean-ai-for-go/main/install.sh
+curl -fsSLO https://raw.githubusercontent.com/shubh1205/lean-ai-for-go/main/install.sh
 less install.sh
 bash install.sh claude-code
 ```
@@ -44,7 +44,7 @@ bash install.sh claude-code
 If your environment can't reach GitHub at install time, clone the repo somewhere local once and use the per-tool `cp` snippets in the sections below:
 
 ```bash
-git clone https://github.com/your-org/lean-ai-for-go.git ~/code/lean-ai-for-go
+git clone https://github.com/shubh1205/lean-ai-for-go.git ~/code/lean-ai-for-go
 ```
 
 Jump to your tool:
@@ -67,7 +67,7 @@ Add the relevant entries to your project's `.gitignore` for the tool(s) you inst
 
 ```gitignore
 # lean-ai-for-go — installed locally per developer; source of truth lives at
-# https://github.com/your-org/lean-ai-for-go. Do not commit.
+# https://github.com/shubh1205/lean-ai-for-go. Do not commit.
 
 # Cursor
 .cursor/rules/
@@ -280,7 +280,7 @@ If your AI tool isn't listed:
 The rules will evolve. To pull updates, re-run the installer (or your manual `cp` snippet) for the same tool:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/your-org/lean-ai-for-go/main/install.sh | bash -s -- claude-code
+curl -sSL https://raw.githubusercontent.com/shubh1205/lean-ai-for-go/main/install.sh | bash -s -- claude-code
 ```
 
 Pin a specific version with `--ref=v1` (or `LEAN_AI_REF=v1`) so a CI/setup script reproduces the same files every time.

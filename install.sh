@@ -9,14 +9,14 @@
 # Tools: cursor, claude-code, agents-md, copilot, windsurf, cline
 #
 # Environment overrides:
-#   LEAN_AI_REPO  owner/repo to fetch from (default: your-org/lean-ai-for-go)
+#   LEAN_AI_REPO  owner/repo to fetch from (default: shubh1205/lean-ai-for-go)
 #   LEAN_AI_REF   branch or tag           (default: main)
 #
 # After install, the script prints the .gitignore lines to add to your project.
 
 set -euo pipefail
 
-REPO="${LEAN_AI_REPO:-your-org/lean-ai-for-go}"
+REPO="${LEAN_AI_REPO:-shubh1205/lean-ai-for-go}"
 REF="${LEAN_AI_REF:-main}"
 TOOLS=()
 
