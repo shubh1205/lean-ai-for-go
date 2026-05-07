@@ -57,58 +57,31 @@ lean-ai-for-go/
 - Edit `templates/` to change what AI tools see. Run `./sync-rules.sh` (or just commit — the pre-commit hook does it automatically) and all tool-specific files are regenerated. Slash-command bodies live in `templates/commands/`; `sync-rules.sh` injects the right frontmatter and variable syntax for each tool.
 - Read `rules/` to understand why a rule exists. The verbose files explain the reasoning and failure modes. They are not compiled into tool files.
 
-## Install (60 seconds, per tool)
+## Install (one-liner, per tool)
 
-Clone this repo somewhere local — most users put it next to their project repos.
-
-```bash
-git clone https://github.com/your-org/lean-ai-for-go.git ~/code/lean-ai-for-go
-```
-
-Then in the Go project where you want the rules, run the snippet for your tool. You can install for multiple tools in the same project — they don't conflict.
-
-### Cursor
+From the root of your Go project, run:
 
 ```bash
-mkdir -p .cursor/rules
-cp -R ~/code/lean-ai-for-go/cursor/rules/. .cursor/rules/
+curl -sSL https://raw.githubusercontent.com/your-org/lean-ai-for-go/main/install.sh | bash -s -- claude-code
 ```
 
-### Claude Code
+Replace `claude-code` with one or more of: `cursor`, `claude-code`, `agents-md`, `copilot`, `windsurf`, `cline`. You can install several tools in one go:
 
 ```bash
-cp ~/code/lean-ai-for-go/claude-code/CLAUDE.md ./CLAUDE.md
-mkdir -p .claude/commands && cp ~/code/lean-ai-for-go/claude-code/commands/*.md .claude/commands/
+curl -sSL https://raw.githubusercontent.com/your-org/lean-ai-for-go/main/install.sh | bash -s -- cursor copilot
 ```
 
-### OpenAI Codex / OpenCode / Antigravity / Aider
+Pin to a tag for reproducible installs:
 
 ```bash
-cp ~/code/lean-ai-for-go/agents-md/AGENTS.md ./AGENTS.md
+curl -sSL https://raw.githubusercontent.com/your-org/lean-ai-for-go/v1/install.sh | bash -s -- --ref=v1 claude-code
 ```
 
-### GitHub Copilot
+The installer prints the `.gitignore` lines to add when it finishes — see the note below on why.
 
-```bash
-mkdir -p .github/instructions .github/prompts
-cp ~/code/lean-ai-for-go/copilot/copilot-instructions.md .github/copilot-instructions.md
-cp ~/code/lean-ai-for-go/copilot/instructions/*.instructions.md .github/instructions/
-cp ~/code/lean-ai-for-go/copilot/prompts/*.prompt.md .github/prompts/
-```
+> **Add the installed files to your project's `.gitignore`.** The installed files are a local mirror of `lean-ai-for-go`, not your project's code — this repo is the source of truth, and each developer installs them in their own checkout. See [INSTALL.md → Add the imported files to `.gitignore`](INSTALL.md#add-the-imported-files-to-gitignore) for the exact entries per tool.
 
-### Windsurf
-
-```bash
-cp ~/code/lean-ai-for-go/windsurf/.windsurfrules ./.windsurfrules
-```
-
-### Cline
-
-```bash
-cp ~/code/lean-ai-for-go/cline/.clinerules ./.clinerules
-```
-
-See [`INSTALL.md`](INSTALL.md) for verification steps per tool, updates, and per-developer overrides.
+For air-gapped installs, manual `cp` snippets, version pinning, verification steps, and per-developer overrides, see [`INSTALL.md`](INSTALL.md).
 
 ## The six things to internalize
 

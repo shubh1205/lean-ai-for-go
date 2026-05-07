@@ -1,16 +1,50 @@
 # Install
 
-`lean-ai-for-go` is a directory of plain files. There is no installer, no package manager step. You copy the right files into your project, and your AI editor picks them up.
+`lean-ai-for-go` is a directory of plain files. The installer is a small shell script that fetches them from a tagged GitHub release; for air-gapped or fully manual installs, the per-tool sections below show the equivalent `cp` commands.
 
 You can install for multiple tools in the same project — they don't conflict.
 
-## TL;DR
+## Quick install (recommended)
+
+From the root of your project:
 
 ```bash
-# 1. Clone this repo somewhere local (one-time)
-git clone https://github.com/your-org/lean-ai-for-go.git ~/code/lean-ai-for-go
+# Single tool
+curl -sSL https://raw.githubusercontent.com/your-org/lean-ai-for-go/main/install.sh | bash -s -- claude-code
 
-# 2. In the project, run the snippet for your tool (see sections below)
+# Multiple tools at once
+curl -sSL https://raw.githubusercontent.com/your-org/lean-ai-for-go/main/install.sh | bash -s -- cursor copilot
+
+# Pin to a tag for reproducible installs (recommended for shared scripts/CI)
+curl -sSL https://raw.githubusercontent.com/your-org/lean-ai-for-go/v1/install.sh | bash -s -- --ref=v1 claude-code
+
+# List supported tools
+curl -sSL https://raw.githubusercontent.com/your-org/lean-ai-for-go/main/install.sh | bash -s -- --list
+```
+
+Tools accepted: `cursor`, `claude-code`, `agents-md`, `copilot`, `windsurf`, `cline`.
+
+The script:
+
+- downloads a tarball of `lean-ai-for-go` at the given ref (defaults to `main`),
+- copies only the files for the requested tool(s) into the right paths in your project,
+- appends to existing single-file rules (`CLAUDE.md`, `AGENTS.md`, `.windsurfrules`, `.clinerules`, `.github/copilot-instructions.md`) instead of overwriting,
+- prints the `.gitignore` lines you need to add when it finishes.
+
+If you'd rather not pipe `curl` to `bash`, fetch the script first and inspect it:
+
+```bash
+curl -fsSLO https://raw.githubusercontent.com/your-org/lean-ai-for-go/main/install.sh
+less install.sh
+bash install.sh claude-code
+```
+
+## Manual install (offline / air-gapped)
+
+If your environment can't reach GitHub at install time, clone the repo somewhere local once and use the per-tool `cp` snippets in the sections below:
+
+```bash
+git clone https://github.com/your-org/lean-ai-for-go.git ~/code/lean-ai-for-go
 ```
 
 Jump to your tool:
@@ -22,6 +56,42 @@ Jump to your tool:
 - [Windsurf](#windsurf)
 - [Cline](#cline)
 - [Other tools](#other-tools)
+
+---
+
+## Add the imported files to `.gitignore`
+
+The files installed by the snippets below are **not your project's code** — they're a local copy of `lean-ai-for-go`, and this repo is the source of truth. Treat them like editor configuration: each developer installs them in their own checkout, and they should not be committed to the project repo.
+
+Add the relevant entries to your project's `.gitignore` for the tool(s) you installed:
+
+```gitignore
+# lean-ai-for-go — installed locally per developer; source of truth lives at
+# https://github.com/your-org/lean-ai-for-go. Do not commit.
+
+# Cursor
+.cursor/rules/
+
+# Claude Code
+CLAUDE.md
+.claude/commands/
+
+# OpenAI Codex / OpenCode / Antigravity / Aider
+AGENTS.md
+
+# GitHub Copilot
+.github/copilot-instructions.md
+.github/instructions/
+.github/prompts/
+
+# Windsurf
+.windsurfrules
+
+# Cline
+.clinerules
+```
+
+Only include the lines for tools you actually use. If your project already commits one of these paths for a different reason (e.g. a hand-written `CLAUDE.md` predating this pack), exclude that specific path from the list and use the appended-install path instead so your existing content is preserved.
 
 ---
 
@@ -207,18 +277,15 @@ If your AI tool isn't listed:
 
 ## Updates
 
-The rules will evolve. To pull updates:
+The rules will evolve. To pull updates, re-run the installer (or your manual `cp` snippet) for the same tool:
 
 ```bash
-cd ~/code/lean-ai-for-go && git pull
+curl -sSL https://raw.githubusercontent.com/your-org/lean-ai-for-go/main/install.sh | bash -s -- claude-code
 ```
 
-Then re-run the install snippet for your tool. For single-file tools where you appended content, re-running will append again — remove the previous lean-ai-for-go block first, then re-run, to avoid duplicates. A clean update looks like:
+Pin a specific version with `--ref=v1` (or `LEAN_AI_REF=v1`) so a CI/setup script reproduces the same files every time.
 
-```bash
-# Example for CLAUDE.md — remove old block, append new one
-# The separator line (---) marks where the lean-ai-for-go section starts
-```
+For single-file tools where you appended content (`CLAUDE.md`, `AGENTS.md`, `.windsurfrules`, `.clinerules`, `.github/copilot-instructions.md`), re-running will append again. To avoid duplicates, remove the previous lean-ai-for-go block first — the section starts at the `---` separator the installer wrote — then re-run. For directory-based tools (Cursor, Claude Code commands, Copilot prompts/instructions), re-running cleanly overwrites the files.
 
 If you've added project-specific rules, keep them in *separate* files (e.g., `04-our-conventions.mdc`) so updates don't overwrite them.
 
